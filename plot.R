@@ -1,5 +1,3 @@
-library(R6)
-
 plot_cx_cy <- function(cx, cy, title = "Graph", x_axis_title = "x_title", y_axis_title = "y_title") {
   if (!is.numeric(cy) || length(cy) < 2) {
     stop("Error: cy must be a numeric vector and length >= 2.")
@@ -16,20 +14,3 @@ plot_cx_cy <- function(cx, cy, title = "Graph", x_axis_title = "x_title", y_axis
   )
   lines(cx, cy, col = "blue", type = "l")
 }
-
-Plot <- R6Class(
-  "Plot",
-  public = list(
-    cx = NULL,
-    cy = NULL,
-    
-    initialize = function(cx, cy) {
-      self$cx <- cx
-      self$cy <- cy
-    },
-    
-    plot_cx_cy = function(title = "Graph", x_axis_title = "x_title", y_axis_title = "y_title") {
-      plot_cx_cy(self$cx, self$cy, title, x_axis_title, y_axis_title)
-    }
-  )
-)
