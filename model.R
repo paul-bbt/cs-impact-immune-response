@@ -1,6 +1,6 @@
 source("./Params/params_1.R")
 
-# To be done
+# Main model function
 model <- function(params){
   return(0)
 }
@@ -9,8 +9,14 @@ model <- function(params){
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 
+# Not done
 get_p_CT <- function (P,C,T,k){
   return(params$p_0*exp(-P$c_n*C)*k*T)
+}
+
+# Not done
+get_p_CT_n_tau <- function(){
+  return(0)
 }
 
 # FAUX ! Revoir, attention à t !
@@ -24,7 +30,13 @@ get_C <- function(y0,z0){
   return(sum(c(y0,y1,y2,y3,z0,z1,z2,z3))) 
 }
 
+# Not done
+get_C_n_tau <- function(){
+  return(0)
+}
+
 # Equations dt (1)
+# Check everything here
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 
@@ -63,9 +75,13 @@ get_dz3 <- function(z2, z3) {
 }
 
 # Equations dt (2)
+# Check everything here
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 
-get_dT <- function(T,P,C_nt,T_nt,k,y_0,z_0){
-  return(P$s_T-P$d_T*T-get_p(P,T,k)*C+(2^P$n)*get_p_CT(P,C_nt,T_nt,k)*params.q_t*C_nt)
+get_dT <- function(T,Patient,k,y_0,z_0){
+  A <- Patient$s_T-Patient$d_T*T
+  B <- get_p()*get_C()
+  C <- (2^Patient$n)*get_p_CT_n_tau()*params$q_t*get_C_n_tau()
+  return(A-B+C)
 }
