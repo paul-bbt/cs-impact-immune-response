@@ -3,7 +3,7 @@ source("./plot.R")
 source("./model.R")
 source("./patient.R")
 source("./interpolate.R")
-source("./params/params_1.R")
+source("./params/params.R")
 source("./params/patientsData.R")
 
 # Test class

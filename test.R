@@ -1,6 +1,6 @@
 source("./utils.R")
 source("./plot.R")
-source("./params/params_1.R")
+source("./params/params.R")
 
 # EX1
 current_directory <- getwd()
