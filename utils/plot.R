@@ -13,3 +13,12 @@ plot_cx_cy <- function(cx, cy, title = "Graph", x_axis_title = "x_title", y_axis
        ylim = c(0, max(cy))
   )
 }
+
+pieChart <- function(cValues, cNames, title = "Pie Chart"){
+  graphics::pie(cValues, labels = cNames, main = title, radius = 1)
+}
+
+# Example with pie function
+#values <- c(10, 60, 30,23)
+#names <- c("A","B","C","D")
+#pieChart(values,names)
