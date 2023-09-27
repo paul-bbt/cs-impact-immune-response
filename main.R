@@ -1,11 +1,14 @@
-source("./utils.R")
-source("./plot.R")
-source("./model.R")
-source("./patient.R")
-source("./interpolate.R")
-source("./params/params.R")
+source("./patientClass.R")
 source("./params/patientsData.R")
 
 # Test class
-P12 <- Patient$new(P12$time_month, P12$sfcs_well,P12$y_0_0, )
-#P12$plot("Graph P12")
+P12Class <- PatientClass$new(P12)
+P12Class$plotData("Plot data")
+P12Class$model1()
+P12Class$plotModel()
+P12Class$getModelScore()
+
+# Ajouter une méthode pour appliquer la méthode des moindres carrés afin de valider la modélisation
+# À propos de l'analyse de sensibilité: 
+# - Modéliser l'incertitutde des facteurs (Page 67 du cours) et faire un camenbert pour comprendre 
+#       l'ordre d'importances des facteurs.
