@@ -1,4 +1,5 @@
 library(deSolve)
+library(PBSddesolve)
 source("./model/modelUtils.R")
 source("./params/params.R")
 source("./model/initialConditions.R")
@@ -12,9 +13,6 @@ Patient <- P1
 equations <- function(t, state, parameters) {
   with(as.list(c(state, parameters)), {
     
-    # No good, to be handled after !
-    k <- 1
-    
     # Extraction des variables d'état
     y0 <- state["y0"]
     y1 <- state["y1"]
@@ -26,18 +24,12 @@ equations <- function(t, state, parameters) {
     z3 <- state["z3"]
     T <- state["T"]
     
-    # Parmètres qui dépendent du temps
-    d0 <- get_d0(t)
-    r_y <- get_r_y(t)
-    r_z <- get_r_z(t)
-    u <- get_u(t)
-    K <- get_K(t)
-    tau <- get_tau(t)
-    
     # Calculs intermédiaires
     C <- get_C(t,y0,y1,y2,y3,z0,z1,z2,z3)
-    C_n_tau <- get_C_n_tau(t,y0,y1,y2,y3,z0,z1,z2,z3,n,tau)
     p_CT <- get_p_CT(t,Patient,C,T,k)
+    
+    # Lag values
+    C_n_tau <- get_C_n_tau(t,y0,y1,y2,y3,z0,z1,z2,z3,n,tau)
     p_CT_n_tau <- get_p_CT_n_tau(t,Patient,C,T,k,n,tau)
   
     # Dérivées x9
@@ -62,6 +54,7 @@ model1 <- function(Patient){
   times <- seq(0, months_range*31, by = 1)
   # Solution
   out <- ode(y = initial_conditions, times = times, func = equations, parms = parameters)
+  # utiliser dede et lagvalues
   # Displaying results
   head(out)
   return(out)
