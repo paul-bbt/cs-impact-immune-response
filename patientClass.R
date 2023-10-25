@@ -2,6 +2,7 @@ library(R6)
 source("./utils/plot.R")
 source("./model/model_2.R")
 source("./utils/scores.R")
+source("./Pierre/Programv3.R")
 
 PatientClass <- R6Class(
   "Patient",
@@ -14,8 +15,13 @@ PatientClass <- R6Class(
     },
     
     # The paper' model 
-    model1 = function() {
-      self$modelOut <- model1(self$Patient)
+    #model1 = function() {
+    #  self$modelOut <- model1(self$Patient)
+    #},
+    
+    # Pierre solution
+    model1 = function (){
+      self$modelOut <- modelPierre(self$Patient)
     },
     
     # Model score
