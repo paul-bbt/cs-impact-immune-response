@@ -1,8 +1,8 @@
 library(R6)
 source("./utils/plot.R")
-source("./model/model_2.R")
+source("./model_1/model_v2.R")
 source("./utils/scores.R")
-source("./Pierre/Programv3.R")
+source("./model_2/program_v2.R")
 
 PatientClass <- R6Class(
   "Patient",
