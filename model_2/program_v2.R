@@ -18,29 +18,19 @@ n <- 2.2
 #dTc<- 0
 #n <- 0
 
-# << to change global variables
+# To change global variables use <<- instead of <-
 initPatient <- function(Patient) {
   C <<- Patient$c_n
   Lsn0 <<- Patient$y0_0
-  # Lsr0 <<- Patient$Lsr0
+  #Lsr0 <<- Patient$pre_treatment_load
   sT <<- Patient$s_t
   dTc <<- Patient$d_t
   n <<- Patient$n
 }
 
-initPatientv2 <- function (){
-  C <<- 7
-  Lsn0 <<- 2.4 * 10^(-6)
-  Lsr0 <<- 0
-  sT <<- 9 * 10^(-7)
-  dTc <<- 0.0022
-  n <<- 2.2
-}
-
 #Traitement imitinib
 td <- 0
 te <- 10000000
-
 V0 <- 0
 tV <- c(1000) #Temps des injection
 cV <- c(6*10^-2) #Concentration des injections
@@ -110,9 +100,8 @@ modelPierre <- function(Patient){
   init <- c(Lsn = Lsn0, Lpn = Lpn0, Ldn = Ldn0, Lten = Lten0, Lsr = Lsr0, Lpr = Lpr0, Ldr = Ldr0, Lter = Lter0, T = T0, V = V0)
   times <- seq(0, 1500, by = 0.1)
   res <- dede(y = init, times = times, func = equations, parms = NULL)
-  c = res[, 2] + res[, 3] + res[, 4] + res[, 5] + res[, 6] + res[, 7] + res[, 8] +  res[, 9]
-  plot(res[, 10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", col = "purple")
-  
+  #c = res[, 2] + res[, 3] + res[, 4] + res[, 5] + res[, 6] + res[, 7] + res[, 8] +  res[, 9]
+  #plot(res[, 10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", col = "purple")
   return(res)
 }
 

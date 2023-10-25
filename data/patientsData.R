@@ -1,9 +1,9 @@
 P1 <- list(
   name = "Patient_1",
   pre_treatment_load = 73, # k/uL see paper, Table 2
-  time_months = c(0,30,35,46), # Table 3
-  time_days = c(0,30,35,46) * 31,
-  sfcs_well = c(3,29,2525,9), # Table 3
+  time_months = c(0,5,30,35,46), # Table 3
+  time_days = c(0,5,30,35,46) * 31,
+  sfcs_well = c(3,29,25,25,9), # Table 3
   y0_0 = 7.6e-6, # Initial concentration of leukemia stem cells, Table 6
   n = 1.2, # Average number of T cell divisions, Table 6
   d_t = 0.001, # Anti-leukemia T cell death rate, Table 6
