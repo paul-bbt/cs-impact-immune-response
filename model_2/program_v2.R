@@ -3,32 +3,27 @@ library(deSolve)
 setwd(getwd())
 source("./model_2/parameters.R")
 
-#Donnée du patient - 7.6 * 10^(-6)
-C <- 7
-Lsn0 <- 2.4 * 10^(-6)
+# Patient data global variables
+C <- 0
+Lsn0 <-0
 Lsr0 <- 0
-sT <- 9 * 10^(-7)
-dTc<- 0.0022
-n <- 2.2
-
-#C <- 0
-#Lsn0 <-0
-#Lsr0 <- 0 # C'est quoi ca ?
-#sT <- 0
-#dTc<- 0
-#n <- 0
+sT <- 0
+dTc<- 0
+n <- 0
+T0 <- 0
 
 # To change global variables use <<- instead of <-
 initPatient <- function(Patient) {
   C <<- Patient$c_n
   Lsn0 <<- Patient$y0_0
-  #Lsr0 <<- Patient$pre_treatment_load
+  Lsr0 <<- 1e-10 # See page 2 on paper z0 = 0 or 1e-10
   sT <<- Patient$s_t
   dTc <<- Patient$d_t
   n <<- Patient$n
+  T0 <<- Patient$s_t/Patient$d_t
 }
 
-#Traitement imitinib
+# Imitinib treatment
 td <- 0
 te <- 10000000
 V0 <- 0
@@ -46,24 +41,22 @@ sV = function(t){
 }
 
 #Parametres d'évolution & initialisation
-an = function(t){ifelse(t>td & t<te, an1, an0)}
-bn = function(t){ifelse(t>td & t<te, bn1, bn0)}
-cn = function(t){ifelse(t>td & t<te, cn1, cn0)}
-
-Lpn0 = an0*Lsn0/dP
-Ldn0 = bn0*Lpn0/dD
-Lten0 = cn0*Ldn0/dTe
-Lpr0 = ar*Lsr0/dP
-Ldr0 = br*Lpr0/dD
-Lter0 = cr*Ldr0/dTe
-T0 = sT/dTc
+an <- function(t){ifelse(t>td & t<te, an1, an0)}
+bn <- function(t){ifelse(t>td & t<te, bn1, bn0)}
+cn <- function(t){ifelse(t>td & t<te, cn1, cn0)}
+Lpn0 <- an0*Lsn0/dP
+Ldn0 <- bn0*Lpn0/dD
+Lten0 <- cn0*Ldn0/dTe
+Lpr0 <- ar*Lsr0/dP
+Ldr0 <- br*Lpr0/dD
+Lter0 <- cr*Ldr0/dTe
 qC * (p0 * exp(-C*(Lsn0+Lpn0+Ldn0+Lten0+Lsr0+Lpr0+Ldr0+Lter0))*k*T0)
 
-#Programme de Resolution
+# Resolution function
 equations <- function(t, state, parameters) {
   with(as.list(c(state, parameters)), {
     
-    #Variable à temps décalé
+    # Variable à temps décalé
     Lsn_ = ifelse(t < n*tau, Lsn0, lagvalue(t- n*tau, 1))
     Lpn_ = ifelse(t < n*tau, Lpn0, lagvalue(t- n*tau, 2))
     Ldn_ = ifelse(t < n*tau, Ldn0, lagvalue(t- n*tau, 3))
@@ -75,7 +68,7 @@ equations <- function(t, state, parameters) {
     T_ = ifelse(t < n*tau, T0, lagvalue(t- n*tau, 9))
     V_ = ifelse(t< n* tau, V0, lagvalue(t-n*tau, 10))
     
-    # Équations
+    # Equations
     dLsn = (rn * (1 - u) - dS) * Lsn - qC * (p0 * exp(-C*(Lsn+Lpn+Ldn+Lten+Lsr+Lpr+Ldr+Lter))*k*T) * Lsn
     dLpn = an(t) * Lsn - dP * Lpn - qC * (p0 * exp(-C*(Lsn+Lpn+Ldn+Lten+Lsr+Lpr+Ldr+Lter))*k*T) * Lpn
     dLdn = bn(t) * Lpn - dD * Ldn - qC * (p0 * exp(-C*(Lsn+Lpn+Ldn+Lten+Lsr+Lpr+Ldr+Lter))*k*T) * Ldn
@@ -89,23 +82,31 @@ equations <- function(t, state, parameters) {
     dT = sT - dTc * T - (p0 * exp(-C*(Lsn+Lpn+Ldn+Lten+Lsr+Lpr+Ldr+Lter))*k*T) * ((Lsn+Lpn+Ldn+Lten+Lsr+Lpr+Ldr+Lter) + V) + 2^n * (p0 * exp(-C*(Lsn_+Lpn_+Ldn_+Lten_+Lsr_+Lpr_+Ldr_+Lter_))*k*T_) * (qT * (Lsn_+Lpn_+Ldn_+Lten_+Lsr_+Lpr_+Ldr_+Lter_) + V_)
     dV = sV(t) - dVc * V - qC * (p0 * exp(-C*(Lsn+Lpn+Ldn+Lten+Lsr+Lpr+Ldr+Lter))*k*T) * V
 
-    #Retour des variables
+    # Retour des variables
     list(c(dLsn, dLpn, dLdn, dLten, dLsr, dLpr, dLdr, dLter, dT, dV))
   })
 }
-
 
 modelPierre <- function(Patient){
   initPatient(Patient)
   init <- c(Lsn = Lsn0, Lpn = Lpn0, Ldn = Ldn0, Lten = Lten0, Lsr = Lsr0, Lpr = Lpr0, Ldr = Ldr0, Lter = Lter0, T = T0, V = V0)
   times <- seq(0, 1500, by = 0.1)
   res <- dede(y = init, times = times, func = equations, parms = NULL)
-  #c = res[, 2] + res[, 3] + res[, 4] + res[, 5] + res[, 6] + res[, 7] + res[, 8] +  res[, 9]
-  #plot(res[, 10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", col = "purple")
+  # Res format: time;Lsn;Lpn;Ldn;Lten;Lsr;Lpr;Ldr;Lter;T;V
   return(res)
 }
 
 
+# Archives du code de Pierre
+#Donnée du patient - 7.6 * 10^(-6)
+#C <- 7
+#Lsn0 <- 2.4 * 10^(-6)
+#Lsr0 <- 0
+#sT <- 9 * 10^(-7)
+#dTc<- 0.0022
+#n <- 2.2
+#c = res[, 2] + res[, 3] + res[, 4] + res[, 5] + res[, 6] + res[, 7] + res[, 8] +  res[, 9]
+#plot(res[, 10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", col = "purple")
 #Graphique(s)
 #Patient B
 #points(c(0, 6, 9, 18, 24, 32, 34, 42)*300, c(1, 16.5, 33, 30, 26, 11, 15, 12)/2500)

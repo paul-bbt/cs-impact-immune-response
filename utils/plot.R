@@ -1,8 +1,5 @@
 plot_cx_cy <- function(cx, cy, title = "Graph", x_axis_title = "x_title", y_axis_title = "y_title", add = FALSE) {
-#  if (add != 0) {
-#    par(mfrow=c(floor(add / 2),add))
-#  }
-  
+
   if (!is.numeric(cy) || length(cy) < 2) {
     stop("Error: cy must be a numeric vector and length >= 2.")
   }
