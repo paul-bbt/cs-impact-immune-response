@@ -95,23 +95,3 @@ modelPierre <- function(Patient){
   # Res format: time;Lsn;Lpn;Ldn;Lten;Lsr;Lpr;Ldr;Lter;T;V
   return(res)
 }
-
-
-# Archives du code de Pierre
-#Donnée du patient - 7.6 * 10^(-6)
-#C <- 7
-#Lsn0 <- 2.4 * 10^(-6)
-#Lsr0 <- 0
-#sT <- 9 * 10^(-7)
-#dTc<- 0.0022
-#n <- 2.2
-#c = res[, 2] + res[, 3] + res[, 4] + res[, 5] + res[, 6] + res[, 7] + res[, 8] +  res[, 9]
-#plot(res[, 10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", col = "purple")
-#Graphique(s)
-#Patient B
-#points(c(0, 6, 9, 18, 24, 32, 34, 42)*300, c(1, 16.5, 33, 30, 26, 11, 15, 12)/2500)
-#plot(res)
-#c[c > 0.1] <- 0
-#plot(c)
-#plot(res[, 11])
-#plot(res[, 11])
