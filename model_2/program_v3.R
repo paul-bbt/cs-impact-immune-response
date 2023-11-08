@@ -1,27 +1,14 @@
-rm(list=ls())
 library(deSolve)
-setwd(getwd())
 source("./model_2/parameters.R")
 
 # Patient data global variables
-C <- 0
-Lsn0 <-0
+C <- 7
+Lsn0 <-2.4*10^(-6)
 Lsr0 <- 0
-sT <- 0
-dTc<- 0
-n <- 0
-T0 <- 0
-
-# To change global variables use <<- instead of <-
-initPatient <- function(Patient) {
-  C <<- Patient$c_n
-  Lsn0 <<- Patient$y0_0
-  Lsr0 <<- 0 # See page 2 on paper z0 = 0 or 1e-10
-  sT <<- Patient$s_t
-  dTc <<- Patient$d_t
-  n <<- Patient$n
-  T0 <<- Patient$s_t/Patient$d_t
-}
+sT <- 9*10^(-7)
+dTc<- 0.0022
+n <- 2.2
+T0 <- sT/dTc
 
 # Imitinib treatment
 td <- 0
@@ -81,28 +68,20 @@ equations <- function(t, state, parameters) {
     
     dT = sT - dTc * T - (p0 * exp(-C*(Lsn+Lpn+Ldn+Lten+Lsr+Lpr+Ldr+Lter))*k*T) * ((Lsn+Lpn+Ldn+Lten+Lsr+Lpr+Ldr+Lter) + V) + 2^n * (p0 * exp(-C*(Lsn_+Lpn_+Ldn_+Lten_+Lsr_+Lpr_+Ldr_+Lter_))*k*T_) * (qT * (Lsn_+Lpn_+Ldn_+Lten_+Lsr_+Lpr_+Ldr_+Lter_) + V_)
     dV = sV(t) - dVc * V - qC * (p0 * exp(-C*(Lsn+Lpn+Ldn+Lten+Lsr+Lpr+Ldr+Lter))*k*T) * V
-
+    
     # Retour des variables
     list(c(dLsn, dLpn, dLdn, dLten, dLsr, dLpr, dLdr, dLter, dT, dV))
   })
 }
 
-modelPierre <- function(Patient){
-  initPatient(Patient)
-  print("Affichage")
-  print(Lsn0)
-  print(Lsr0)
-  print(sT)
-  print(dTc)
-  print(n)
-  print(T0)
+par(mar = c(1, 1, 1, 1))
+
+modelPierreV3 <- function(){
   init <- c(Lsn = Lsn0, Lpn = Lpn0, Ldn = Ldn0, Lten = Lten0, Lsr = Lsr0, Lpr = Lpr0, Ldr = Ldr0, Lter = Lter0, T = T0, V = V0)
   times <- seq(0, 1500, by = 0.1)
   res <- dede(y = init, times = times, func = equations, parms = NULL)
   # Res format: time;Lsn;Lpn;Ldn;Lten;Lsr;Lpr;Ldr;Lter;T;V
-  plot(res[,10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", col = "purple")
-  points(c(0, 6, 9, 18, 24, 32, 34, 42)*300, c(1, 16.5, 33, 30, 26, 11, 15, 12)/2500)
+  #plot(res[,10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", col = "purple")
+  #points(c(0, 6, 9, 18, 24, 32, 34, 42)*300, c(1, 16.5, 33, 30, 26, 11, 15, 12)/2500)
   return(res)
 }
-
-

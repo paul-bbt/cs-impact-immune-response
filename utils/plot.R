@@ -3,6 +3,7 @@ plot_cx_cy <- function(cx, cy, title = "Graph", x_axis_title = "x_title", y_axis
   if (!is.numeric(cy) || length(cy) < 2) {
     stop("Error: cy must be a numeric vector and length >= 2.")
   }
+  
   a <- c(0, max(cx))
   plot(cx, cy, 
        main = title,
