@@ -77,11 +77,14 @@ equations <- function(t, state, parameters) {
 par(mar = c(1, 1, 1, 1))
 
 modelPierreV3 <- function(){
+  print(Lpn0)
   init <- c(Lsn = Lsn0, Lpn = Lpn0, Ldn = Ldn0, Lten = Lten0, Lsr = Lsr0, Lpr = Lpr0, Ldr = Ldr0, Lter = Lter0, T = T0, V = V0)
   times <- seq(0, 1500, by = 0.1)
   res <- dede(y = init, times = times, func = equations, parms = NULL)
   # Res format: time;Lsn;Lpn;Ldn;Lten;Lsr;Lpr;Ldr;Lter;T;V
-  #plot(res[,10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", col = "purple")
-  #points(c(0, 6, 9, 18, 24, 32, 34, 42)*300, c(1, 16.5, 33, 30, 26, 11, 15, 12)/2500)
+  plot(res[,10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", col = "purple")
+  points(c(0, 6, 9, 18, 24, 32, 34, 42)*300, c(1, 16.5, 33, 30, 26, 11, 15, 12)/2500)
   return(res)
 }
+
+modelPierreV3()
