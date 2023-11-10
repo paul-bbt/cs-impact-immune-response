@@ -1,6 +1,6 @@
 source("./model_2/program_v4.R")
 source("./data/patientsData.R")
-
+par(mfrow = c(1, 2))
 parameters1 = list(
   lambda = 0.75, # Parametre d'ajustement
   dS = 0.003 * lambda, # Death rate Ls
@@ -33,20 +33,25 @@ parameters1 = list(
   tau = 1 # Duration of one T cell division (day)
 )
 
+# On faut varier kambda en observant l'erreur RSME
 Patient <- P1
-# Variations de lambda
-lambda_values <- seq(0.5, 1, by = 0.1)
+Patient_x <- Patient$time_echelle
+Patient_y <- Patient$sfcs_well_echelle
+
+# Variations de lambda et observation du score
+lambda_values <- seq(0.55, 0.8, by = 0.001)
 rmse_values <- numeric(length(lambda_values))
 
-# Valeur de référence
+# Valeur de référence avec lambda du sujet
 c1 <- modelPierreV4(Patient, parameters1)
-plot(c1[,10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", main= Patient$name ,col = "red")
+# Res format: time;Lsn;Lpn;Ldn;Lten;Lsr;Lpr;Ldr;Lter;T;V
+plot(c1[,10], type = "l", xlab = "time [m]", ylab = "T cells [mol.L-1]", main= Patient$name ,col = "red")
 points(Patient$time_echelle, Patient$sfcs_well_echelle)
 
-for (i in 1:length(lambda_values)) {
-  print(paste(round(100*i/length(lambda_values)),"%"))
+for (lambda_index in 1:length(lambda_values)) {
+  print(paste(round(100*lambda_index/length(lambda_values)),"%"))
   
-  new_lambda <- lambda_values[i]
+  new_lambda <- lambda_values[lambda_index]
   parameters2 <- parameters1
   parameters2$lambda <- new_lambda
   parameters2$dS <- 0.003 * new_lambda
@@ -55,6 +60,25 @@ for (i in 1:length(lambda_values)) {
   parameters2$dTe <- new_lambda
   
   c2 <- modelPierreV4(Patient, parameters2)
-  lines(c2[, 10], col = "blue")
+  lines(c2[,10], col = "blue")
+  
+  # Alignement des prédictions du modèle avec les données du patient
+  y_model <- c2[,10]
+  x_model <- c2[,1]
+  aligned_predictions <- numeric(length(Patient_x))
+  for (data_index in 1:length(Patient_x)) {
+    time_index <- which(x_model == Patient_x[data_index])
+    if(length(time_index) == 1) {
+      aligned_predictions[data_index] <- y_model[time_index]
+    }
+  }
+  
+  # Calcul du RMSE
+  errors <- Patient_y - aligned_predictions
+  rmse <- sqrt(mean(errors^2, na.rm = TRUE))
+  rmse_values[lambda_index] <- rmse
 }
 
+# Affichage des résultats RMSE
+print("Plotting RMSE values")
+plot(lambda_values, rmse_values, type = "l", xlab = "lambda", ylab = "RMSE", main = "Estimation paramétrique pour lambda")

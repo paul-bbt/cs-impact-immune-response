@@ -32,29 +32,19 @@ parameters1 = list(
   k = 1, # Kinetic coefficient
   tau = 1 # Duration of one T cell division (day)
 )
-
 Patient <- P1
-# Variations de lambda
-lambda_values <- seq(0.5, 1, by = 0.1)
-rmse_values <- numeric(length(lambda_values))
 
-# Valeur de référence
-c1 <- modelPierreV4(Patient, parameters1)
-plot(c1[,10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", main= Patient$name ,col = "red")
-points(Patient$time_echelle, Patient$sfcs_well_echelle)
-
-for (i in 1:length(lambda_values)) {
-  print(paste(round(100*i/length(lambda_values)),"%"))
-  
-  new_lambda <- lambda_values[i]
-  parameters2 <- parameters1
-  parameters2$lambda <- new_lambda
-  parameters2$dS <- 0.003 * new_lambda
-  parameters2$dP <- 0.008 * new_lambda
-  parameters2$dD <- 0.05 * new_lambda
-  parameters2$dTe <- new_lambda
-  
-  c2 <- modelPierreV4(Patient, parameters2)
-  lines(c2[, 10], col = "blue")
+model_function <- function(params) {
+  parameters$u <- params[1]
+  parameters$ur <- params[2]
+  parameters$k <- params[3]
+  model_output <- modelPierreV4(Patient, parameters)
+  return(model_output[, 10])
 }
 
+target_column <- Patient$sfcs_well_echelle
+initial_values <- c(u = parameters$u, ur = parameters$ur, k = parameters$k)
+fitted_model <- nls2::modFit(formula = target_column ~ model_function(params, Patient_data),
+                             start = list(params = initial_values),
+                             algorithm = "port")
+summary(fitted_model)
