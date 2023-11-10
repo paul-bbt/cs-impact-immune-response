@@ -1,11 +1,13 @@
 source("./model_2/program_v4.R")
 source("./data/patientsData.R")
-parameters = list(
+
+parameters1 = list(
   lambda = 0.75, # Parametre d'ajustement
   dS = 0.003 * lambda, # Death rate Ls
   dP = 0.008 * lambda, # Death rate Lp
   dD = 0.05 * lambda, # Death rate Ld
   dTe = lambda, # Death rate Lte
+  
   rn = 0.008, # Growth rate for non-resistant cells (to imatinib)
   rr = 0.0023, # Growth rate for resistant cells
   an0 = 1.6, # Transfer rate. 
@@ -32,25 +34,28 @@ parameters = list(
   tau = 1 # Duration of one T cell division (day)
 )
 
-Nrep=20
-X1<-data.frame(lambda=runif(Nrep, 0.5, 1),k=runif(Nrep, 0.9, 1.1),u=runif(Nrep, 0.9, 1.1))
-X2<-data.frame(lambda=runif(Nrep, 0.5, 1),k=runif(Nrep, 0.9, 1.1),u=runif(Nrep, 0.9, 1.1))
+# Identifiability
+# Variations on lambda
+u_values <- seq(1 * 10^(-8), 8 * 10^(-8), by = 1 * 10^(-8))
+print(length(u_values))
+rmse_values <- numeric(length(u_values))
+c1 <- modelPierreV4(P1, parameters1)
 
-simulation <- function(studiedParams){
-  out <-NULL
-  for (i in 1:nrow(studiedParams)){
-    print(paste(round(100*i/nrow(studiedParams)),"%"))
-    
-    # On fait varier 3 paramètres et on garde les autres.
-    params <- parameters
-    params$lambda <-studiedParams$lambda[i]
-    params$k <-studiedParams$k[i]
-    answer <- modelPierreV4(P1,params)
-    print(answer[,10][3])
-    out <- c(out,answer[,10][1])
-  }
-  return(out)
+for (i in 1:length(u_values)) {
+  print(paste(round(100*i/length(u_values)),"%"))
+  
+  new_u <- u_values[i]
+  parameters2 <- parameters1
+  parameters2$u <- new_u
+  
+  c2 <- modelPierreV4(P1, parameters2)[,10]
+  
+  # Calculate RMSE
+  squared_diff <- (c1 - c2)^2
+  mean_squared_diff <- mean(squared_diff)
+  rmse <- sqrt(mean_squared_diff)
+  
+  rmse_values[i] <- rmse
 }
-
-ressob<-sobol2002(simulation, X1, X2, nboot=10)
-plot(ressob)
+print("Plotting values")
+plot(u_values, rmse_values, type = "l", xlab = "p0", ylab = "RMSE", main = "RMSE vs. p0")

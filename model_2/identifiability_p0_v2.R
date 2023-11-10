@@ -1,6 +1,8 @@
+library(ggplot2)
 source("./model_2/program_v4.R")
 source("./data/patientsData.R")
-parameters = list(
+
+parameters1 = list(
   lambda = 0.75, # Parametre d'ajustement
   dS = 0.003 * lambda, # Death rate Ls
   dP = 0.008 * lambda, # Death rate Lp
@@ -32,25 +34,25 @@ parameters = list(
   tau = 1 # Duration of one T cell division (day)
 )
 
-Nrep=20
-X1<-data.frame(lambda=runif(Nrep, 0.5, 1),k=runif(Nrep, 0.9, 1.1),u=runif(Nrep, 0.9, 1.1))
-X2<-data.frame(lambda=runif(Nrep, 0.5, 1),k=runif(Nrep, 0.9, 1.1),u=runif(Nrep, 0.9, 1.1))
+Patient <- P1
+# Variations de lambda
+p0_values <- seq(0.5, 1, by = 0.1)
+rmse_values <- numeric(length(p0_values))
 
-simulation <- function(studiedParams){
-  out <-NULL
-  for (i in 1:nrow(studiedParams)){
-    print(paste(round(100*i/nrow(studiedParams)),"%"))
-    
-    # On fait varier 3 paramètres et on garde les autres.
-    params <- parameters
-    params$lambda <-studiedParams$lambda[i]
-    params$k <-studiedParams$k[i]
-    answer <- modelPierreV4(P1,params)
-    print(answer[,10][3])
-    out <- c(out,answer[,10][1])
-  }
-  return(out)
+# Valeur de référence
+c1 <- modelPierreV4(Patient, parameters1)
+plot(c1[,10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", main= Patient$name ,col = "red")
+points(Patient$time_echelle, Patient$sfcs_well_echelle)
+
+print("Starting")
+for (i in 1:length(p0_values)) {
+  print(paste(round(100*i/length(p0_values)),"%"))
+  
+  new_p0 <- p0_values[i]
+  parameters2 <- parameters1
+  parameters2$p0 <- new_p0
+  
+  c2 <- modelPierreV4(Patient, parameters2)
+  lines(c2[, 10], col = "blue")
 }
 
-ressob<-sobol2002(simulation, X1, X2, nboot=10)
-plot(ressob)

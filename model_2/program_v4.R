@@ -17,7 +17,6 @@ modelPierreV4 <- function(Patient,modelParam){
   dTc <<- Patient$d_t
   n <<- Patient$n
   T0 <<- Patient$s_t/Patient$d_t
-  
   # Setting Params Data
   lambda <- modelParam$lambda
   dS <- modelParam$dS
@@ -48,7 +47,6 @@ modelPierreV4 <- function(Patient,modelParam){
   qT <-modelParam$qT
   k <- modelParam$k
   tau <-modelParam$tau
-  
   # Imitinib treatment
   td <- 0
   te <- 10000000
@@ -57,9 +55,8 @@ modelPierreV4 <- function(Patient,modelParam){
   cV <- c(6*10^-2) # Concentration des injections
   dtV <- 100 # Durée d'injection
   dVc <- 0.35 #T aux de décès
-  
+
   # --------------------
-  
   sV = function(t){
     acc <- 0
     for (i in 1:length(tV)){
@@ -67,7 +64,6 @@ modelPierreV4 <- function(Patient,modelParam){
     }
     acc
   }
-  
   #Parametres d'évolution & initialisation
   an <- function(t){ifelse(t>td & t<te, an1, an0)}
   bn <- function(t){ifelse(t>td & t<te, bn1, bn0)}
@@ -83,7 +79,6 @@ modelPierreV4 <- function(Patient,modelParam){
   # Resolution function
   equations <- function(t, state, parameters) {
     with(as.list(c(state, parameters)), {
-      
       # Variable à temps décalé
       Lsn_ = ifelse(t < n*tau, Lsn0, lagvalue(t- n*tau, 1))
       Lpn_ = ifelse(t < n*tau, Lpn0, lagvalue(t- n*tau, 2))
@@ -113,7 +108,7 @@ modelPierreV4 <- function(Patient,modelParam){
   init <- c(Lsn = Lsn0, Lpn = Lpn0, Ldn = Ldn0, Lten = Lten0, Lsr = Lsr0, Lpr = Lpr0, Ldr = Ldr0, Lter = Lter0, T = T0, V = V0)
   times <- seq(0, 1500, by = 0.1)
   res <- dede(y = init, times = times, func = equations, parms = NULL)
-  plot(res[,10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", col = "purple")
-  points(c(0, 6, 9, 18, 24, 32, 34, 42)*300, c(1, 16.5, 33, 30, 26, 11, 15, 12)/2500)
+  #plot(res[,10], type = "l", xlab = "Temps [m]", ylab = "T cells [mol.L-1]", main= Patient$name ,col = "purple")
+  #points(Patient$time_echelle, Patient$sfcs_well_echelle)
   return(res)
 }
